@@ -1,4 +1,4 @@
-import cv2
+import cv2 as cv
 from config import vision_config as vc
 
 class Camera:
@@ -6,10 +6,10 @@ class Camera:
     def __init__(self, camera_id):
        
         self.camera_source = camera_id
-        self.cap = cv2.VideoCapture(self.camera_source)
+        self.cap = cv.VideoCapture(self.camera_source)
 
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, vc.CAMERA_WIDTH)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, vc.CAMERA_HEIGHT)
+        self.cap.set(cv.CAP_PROP_FRAME_WIDTH, vc.CAMERA_WIDTH)
+        self.cap.set(cv.CAP_PROP_FRAME_HEIGHT, vc.CAMERA_HEIGHT)
         
         if not self.cap.isOpened():
             '''Erro se não conseguir abrir a camera'''
