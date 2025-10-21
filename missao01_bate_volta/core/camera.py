@@ -1,4 +1,5 @@
 import cv2
+from config import vision_config as vc
 
 class Camera:
     '''Encapsula a lógica de captura de vídeo do OpenCV (câmera ou arquivo). '''
@@ -6,6 +7,9 @@ class Camera:
        
         self.camera_source = camera_id
         self.cap = cv2.VideoCapture(self.camera_source)
+
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, vc.CAMERA_WIDTH)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, vc.CAMERA_HEIGHT)
         
         if not self.cap.isOpened():
             '''Erro se não conseguir abrir a camera'''
@@ -13,8 +17,8 @@ class Camera:
 
     def read_frame(self):
         '''Lê o próximo frame da fonte.'''
-        sucesso, frame = self.cap.read()
-        return sucesso, frame
+        sucess, frame = self.cap.read()
+        return sucess, frame
 
     def is_open(self):
         """Verifica se a captura ainda está ativa."""
