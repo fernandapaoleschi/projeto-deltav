@@ -1,9 +1,9 @@
 import cv2
 import numpy as np
 
-# ----------------------------------------------------
-# ⚙️ FUNÇÃO PRINCIPAL: PRÉ-PROCESSAMENTO DO FRAME
-# ----------------------------------------------------
+
+#  FUNÇÃO PRINCIPAL: PRÉ-PROCESSAMENTO DO FRAME
+
 def preprocess_frame(frame, blur_size=(5, 5), canny_t1=50, canny_t2=150, morph_kernel=(5, 5)):
     """
     Aplica o pipeline de pré-processamento para detecção de formas.
@@ -18,25 +18,24 @@ def preprocess_frame(frame, blur_size=(5, 5), canny_t1=50, canny_t2=150, morph_k
         morph (np.ndarray): imagem binária processada (usada para encontrar contornos)
     """
 
-    # --- 1. Converte para escala de cinza ---
+    # Converte para escala de cinza
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    # --- 2. Suavização (reduz ruído e falsos contornos) ---
+    # uavização (reduz ruído e falsos contornos)
     blurred = cv2.GaussianBlur(gray, blur_size, 0)
 
-    # --- 3. Detector de bordas Canny ---
+    #  Detector de bordas Canny
     edges = cv2.Canny(blurred, canny_t1, canny_t2)
 
-    # --- 4. Fechamento morfológico (junta bordas quebradas) ---
+    # Fechamento morfológico (junta bordas quebradas) 
     kernel = np.ones(morph_kernel, np.uint8)
     morph = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel)
 
     return morph
 
 
-# ----------------------------------------------------
 # 🧩 OPÇÃO 2: PRÉ-PROCESSAMENTO COM LIMIAR ADAPTATIVO
-# ----------------------------------------------------
+
 def adaptive_threshold_preprocess(frame, block_size=21, C=5):
     """
     Alternativa ao Canny — útil em ambientes com iluminação irregular.

@@ -1,5 +1,6 @@
 import cv2
 from config import settings
+from utils.preprocessing import preprocess_frame  # importa o preprocessing
 
 # Importando as classes dos detectores
 from detectors.base_detector import ShapeDetector
@@ -36,15 +37,24 @@ class ShapeManager:
         return list(self._detectors.keys())
 
     def process_frame(self, frame, target_shape_name):
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-        edges = cv2.Canny(blurred, self.canny_t1, self.canny_t2)
-        contours, _ = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        """
+        Aplica o pipeline de pré-processamento e tenta detectar
+        a forma solicitada.
+        """
+        # usa o módulo de pré-processamento
+        morph = preprocess_frame(
+            frame,
+            blur_size=(5, 5),
+            canny_t1=self.canny_t1,
+            canny_t2=self.canny_t2
+        )
+
+        contours, _ = cv2.findContours(morph.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         detector_obj = self._detectors.get(target_shape_name)
         if not detector_obj:
             return frame, []
-        
+
         found_contours = []
 
         for contour in contours:
@@ -54,12 +64,17 @@ class ShapeManager:
             if detector_obj.detect(contour):
                 found_contours.append(contour)
                 self._draw_detection(frame, contour, target_shape_name)
-        
+
         return frame, found_contours
-    
+
     @staticmethod
     def _draw_detection(frame, contour, name):
-        """Método auxiliar para desenhar os resultados no frame."""
+        """Desenha o contorno e o nome da forma no frame."""
         x, y, w, h = cv2.boundingRect(contour)
         cv2.drawContours(frame, [contour], -1, settings.CONTOUR_COLOR, settings.CONTOUR_THICKNESS)
-        cv2.putText(frame, name.capitalize(), (x, y - 10), settings.FONT, settings.FONT_SCALE, settings.CONTOUR_COLOR, settings.FONT_THICKNESS)
+        cv2.putText(
+            frame, name.capitalize(),
+            (x, y - 10),
+            settings.FONT, settings.FONT_SCALE,
+            settings.CONTOUR_COLOR, settings.FONT_THICKNESS
+        )
