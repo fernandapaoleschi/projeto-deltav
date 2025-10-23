@@ -1,7 +1,7 @@
 import cv2
 from detectors.base_detector import ShapeDetector
 from utils.geometry import calculate_angle # Importa a função da pasta de utilidades
-from config import settings # Importa o fator de aproximação configurado
+from config import vision_config as settings # Importa o fator de aproximação configurado
 
 class HouseDetector(ShapeDetector):
     def __init__(self):
