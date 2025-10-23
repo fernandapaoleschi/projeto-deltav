@@ -1,10 +1,11 @@
 # visualizador.py
 import cv2 as cv
 
-class Visualizer:
+
+class ViewCamera:
     ''' Gerencia a exibição de janelas e a verificação de entrada do usuário. '''
     
-    def __init__(self, window_name="Missão 01"):
+    def __init__(self, window_name="Missão 01",):
         self.window_name = window_name
         cv.namedWindow(self.window_name, cv.WINDOW_AUTOSIZE)
 
@@ -26,3 +27,5 @@ class Visualizer:
         '''Fecha todas as janelas abertas pelo OpenCV.'''
         print("Closing OpenCV windows.")
         cv.destroyAllWindows()
+
+    

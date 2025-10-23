@@ -1,10 +1,24 @@
 import cv2 as cv 
+import math
 # CONFIGURAÇÕES GERAIS DA APLICAÇÃO
 
 # -- CONFIGURAÇÕES DA CÂMERA --
 CAMERA_INDEX = 0
 CAMERA_WIDTH = 1280
 CAMERA_HEIGHT = 720
+
+# PARÂMETROS DE TAMANHO/DISTÂNCIA
+DISTANCE_F_PX = 750
+
+# Objeto da Missão "Bate e Volta"
+PLATFORM_WIDTH_CM = 80.0  #  (Quadrados brancos com 80x80cm)
+
+# Objeto da Missão "Coleta e Entrega Guiada"
+ARUCO_BOX_WIDTH_CM = 30.0  #  (Caixas com 30x30cm)
+
+# Objeto de Entrega da Missão "Bate e Volta"
+WIDTH_CUBE_CM = 5.0  #  (Cubo vermelho com 5x5x5cm)
+
 
 # -- PARÂMETROS DE DETECÇÃO --
 MIN_CONTOUR_AREA = 400
