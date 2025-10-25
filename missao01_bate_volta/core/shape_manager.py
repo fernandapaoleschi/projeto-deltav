@@ -4,7 +4,6 @@ from utils.preprocessing import preprocess_frame  # importa o preprocessing
 
 # Importando as classes dos detectores
 from detectors.base_detector import ShapeDetector
-from detectors.quadrado_detector import SquareDetector
 from detectors.triangle_detector import TriangleDetector
 from detectors.circle_detector import CircleDetector
 from detectors.pentagono_detector import PentagonDetector
@@ -22,7 +21,6 @@ class ShapeManager:
 
         # Carrega e instancia todos os detectores disponíveis
         detectors_list = [
-            SquareDetector(),
             TriangleDetector(),
             CircleDetector(),
             PentagonDetector(),

@@ -1,6 +1,6 @@
 import cv2
 from detectors.base_detector import ShapeDetector
-from config import settings
+from config import vision_config as settings
 
 class CrossDetector(ShapeDetector):
     def __init__(self, solidity_threshold=0.8):
@@ -8,7 +8,7 @@ class CrossDetector(ShapeDetector):
         self.solidity_threshold = solidity_threshold
 
     def detect(self, contour):
-        #Detecta uma cruz analisando a 'solidez' do contorno
+        """Detecta uma cruz padrão (12 vértices) analisando a 'solidez'."""
         area = cv2.contourArea(contour)
         hull = cv2.convexHull(contour)
         hull_area = cv2.contourArea(hull)
@@ -18,9 +18,8 @@ class CrossDetector(ShapeDetector):
             
         solidity = float(area) / hull_area
         
-        # Confirma a complexidade com a contagem de vértices
         peri = cv2.arcLength(contour, True)
         approx = cv2.approxPolyDP(contour, settings.APPROX_POLY_FACTOR * peri, True)
         
-        # Uma cruz é côncava (baixa solidez) e tem mais de 6 vértices
-        return solidity < self.solidity_threshold and len(approx) > 6
+        # A cruz padrão (como a da imagem) terá 12 vértices e é côncava.
+        return solidity < self.solidity_threshold and len(approx) == 12

@@ -1,6 +1,6 @@
 import cv2
 from detectors.base_detector import ShapeDetector
-from config import settings
+from config import vision_config as settings
 
 class HexagonDetector(ShapeDetector):
     def __init__(self):
