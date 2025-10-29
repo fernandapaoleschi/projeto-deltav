@@ -1,3 +1,4 @@
+# missao_principal5
 # Implementado máquina de estados E thread de visão paralela
 
 import cv2 # Necessário para o imshow
@@ -44,10 +45,10 @@ def run_vision_thread(stop_event: Event):
     camera = None # Define fora do try para o finally
     try:
         # 1. Inicializa os componentes de visão
-        camera = Camera(resolution=(CAMERA_WIDTH, CAMERA_HEIGHT))
+        camera = Camera()
         camera.start()
         shape_manager = ShapeManager() 
-        controller = CentralizationController(shape_manager=shape_manager,camera_width=CAMERA_WIDTH,camera_height=CAMERA_HEIGHT)
+        controller = CentralizationController(shape_manager=shape_manager,camera_width=settings.CAMERA_WIDTH,camera_height=settings.CAMERA_HEIGHT)
         print("[VISÃO] Componentes de visão inicializados.")
         
     except Exception as e:
@@ -85,7 +86,6 @@ def run_vision_thread(stop_event: Event):
             # Etapa 4: Escreve os dados no arquivo
             escrever_dados_alvo(data_to_save)
 
-            # --- É AQUI QUE VOCÊ ADICIONA O CÓDIGO ---
             cv2.imshow("Stream da Visao", display_frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 print("[VISÃO] Janela fechada pelo usuário ('q').")
