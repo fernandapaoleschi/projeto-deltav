@@ -2,7 +2,7 @@ import cv2
 from config import vision_config as settings
 
 # Importa diretamente todas as classes de detectores que queremos testar
-from detectors.quadrado_detector import SquareDetector
+#from detectors.quadrado_detector import SquareDetector
 from detectors.triangle_detector import TriangleDetector
 from detectors.circle_detector import CircleDetector
 from detectors.pentagono_detector import PentagonDetector
@@ -21,7 +21,7 @@ def run_detection_test():
 
     # 1. Cria uma lista com uma instância de cada detector que queremos testar
     detectors = [
-        SquareDetector(),
+        #SquareDetector(),
         TriangleDetector(),
         CircleDetector(),
         PentagonDetector(),
