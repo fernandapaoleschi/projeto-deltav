@@ -2,7 +2,6 @@ import cv2
 import time
 from threading import Lock, Thread
 
-
 class Camera:
     """
     Classe para gerenciar a camera em uma thread separada,

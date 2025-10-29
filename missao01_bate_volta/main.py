@@ -1,131 +1,222 @@
-# test_detecction.py (Agora como o controlador principal do Webots)
-
-# --- APIs do Webots ---
-from controller import Robot
-# (Nota: O Webots pode ter classes específicas de Drone,
-#  mas vamos usar a 'Robot' genérica por agora)
-import numpy as np
 import cv2
 import time
+import json
+from threading import Lock, Thread, Event
 
-# --- Seus Módulos de Visão ---
-# (Estes SÃO compatíveis e podem ser usados!)
-from core.shape_manager import ShapeManager
+# --- Imports do run_vision.py ---
 from utils.centralization import CentralizationController
+from core.shape_manager import ShapeManager
 from config import vision_config as settings
+from utils.camera_sim import Camera # A câmera que usa RTSP
+from utils.data_transfer import escrever_dados_alvo # Corrigido
 
-# --- Seus Módulos de Controlo ---
-# !!! ATENÇÃO: ISTO NÃO VAI FUNCIONAR NO WEBOTS !!!
-# from control import funcoes_controle5 
-# (Vamos focar-nos na visão primeiro)
+# --- Imports do test_detecction.py ---
+from control import funcoes_controle5
 
-# --- Constantes da Missão ---
+# --- Constantes do run_vision.py ---
+# CAMERA_WIDTH = 640
+# CAMERA_HEIGHT = 480
+TARGET_SHAPE = "estrela"   # Nome da forma que você está procurando
+
+# --- Constantes do test_detecction.py ---
 ALTITUDE_DE_BUSCA = 3.0
-TARGET_SHAPE = "estrela"
-CAMERA_WIDTH = 640  # Valor padrão, será atualizado
-CAMERA_HEIGHT = 480 # Valor padrão, será atualizado
+PASSO_DA_VARREDURA = 1.0   # Distância (m) entre as "pernas" da varredura em S
+VEL_LATERAL = 1.0          
+VEL_FRENTE = 1.0           
 
-def main():
-    
-    # 1. INICIALIZAÇÃO DO WEBOTS
-    print("Iniciando controlador do Webots...")
-    robot = Robot()
-    timestep = int(robot.getBasicTimeStep()) # Obtém o passo de simulação
+# --- LÓGICA DE VISÃO (Original de run_vision.py) ---
+# Esta função rodará em uma Thread separada
 
-    # 2. INICIALIZAÇÃO DA CÂMARA (O MODO CORRETO)
+def run_vision_thread(stop_event: Event):
+    print("[VISÃO] Iniciando script de VISÃO...")
+
+    # 1. Inicializa os componentes
     try:
-        # 'camera' deve ser o nome que deu ao nó da câmara no Webots
-        camera_node = robot.getCamera("camera") 
-        camera_node.enable(timestep) # Liga a câmara
+        # (A) Câmera
+        camera = Camera(resolution=(settings.CAMERA_WIDTH, settings.CAMERA_HEIGHT))
+        camera.start()
+
+        # (B) Processador de Formas
+        shape_manager = ShapeManager() 
         
-        # Obtém a largura e altura reais da câmara no simulador
-        CAMERA_WIDTH = camera_node.getWidth()
-        CAMERA_HEIGHT = camera_node.getHeight()
-        print(f"Câmara do Webots '{camera_node.getName()}' inicializada ({CAMERA_WIDTH}x{CAMERA_HEIGHT}).")
+        # (C) Controlador de Centralização (a parte da Visão)
+        controller = CentralizationController(shape_manager=shape_manager,camera_width=settings.CAMERA_WIDTH,camera_height=settings.CAMERA_HEIGHT)
+        print("[VISÃO] Componentes de visão inicializados.")
         
     except Exception as e:
-        print(f"!!! ERRO: Falha ao encontrar/ligar a câmara no Webots: {e} !!!")
-        print("Verifique o 'name' do nó da câmara no seu robô (ex: 'camera').")
-        return
+        print(f"!!! [VISÃO] ERRO CRÍTICO NA INICIALIZAÇÃO: {e} !!!")
+        print("[VISÃO] Script de visão não pode continuar.")
+        return # Encerra esta thread
 
-    # 3. INICIALIZAÇÃO DOS COMPONENTES DE VISÃO
-    # (Isto é o que o run_vision.py fazia)
-    shape_manager = ShapeManager() 
-    vision_controller = CentralizationController(
-        shape_manager=shape_manager,
-        camera_width=CAMERA_WIDTH,
-        camera_height=CAMERA_HEIGHT
-    )
-    print("Componentes de visão (ShapeManager, CentralizationController) inicializados.")
-
-    # 4. INICIALIZAÇÃO DO CONTROLO DO DRONE (API DO WEBOTS)
-    # Aqui você precisaria de inicializar os motores, GPS, Gyro, etc., do Webots
-    # Ex: gps = robot.getDevice("gps")
-    # Ex: motor1 = robot.getDevice("motor1")
-    # ...
-    # O 'funcoes_controle5' (DroneKit) NÃO funcionará aqui.
-    print("A inicializar dispositivos do drone (GPS, motores... - API Webots)")
-    
-    
-    # 5. EXECUÇÃO DA MISSÃO (O LOOP PRINCIPAL)
-    print("INICIANDO MISSÃO)")
-    
-    # --- Aqui entraria a sua lógica de decolagem ---
-    # (Usando a API do Webots para controlar os motores e atingir 3.0m)
-    print(f"Decolando para {ALTITUDE_DE_BUSCA}m...")
-    # ... (código de decolagem do Webots) ...
-    
-    
-    # O loop principal da simulação. Substitui todos os 'time.sleep()'
-    while robot.step(timestep) != -1:
-        
-        # --- ETAPA DE VISÃO (O que o run_vision.py faria) ---
-        
-        # 1. Obtém a imagem da câmara do Webots
-        img_data = camera_node.getImage()
-        if img_data is None:
-            continue
-
-        # 2. Converte a imagem para o formato OpenCV (BGR)
-        # O Webots fornece BGRA num buffer 1D, o OpenCV usa BGR num array 3D
-        frame = np.frombuffer(img_data, np.uint8).reshape((CAMERA_HEIGHT, CAMERA_WIDTH, 4))
-        frame_bgr = frame[:, :, :3] # Remove o canal Alpha (transparência)
-        
-        # (Opcional) Mostrar a imagem que o OpenCV está a ver
-        # cv2.imshow("Visao", frame_bgr)
-        # cv2.waitKey(1)
-        
-        # 3. Processa o frame
-        vision_data = vision_controller.calculate_control_data(
-            frame=frame_bgr,
-            target_shape_name=TARGET_SHAPE,
-            target_real_width_cm=settings.PLATFORM_WIDTH_CM
-        )
-
-        # 4. Agora, 'vision_data' está disponível DIRETAMENTE
-        #    Não precisamos de ficheiros JSON!
-        
-        
-        # --- ETAPA DE CONTROLO (O que o test_detecction.py faria) ---
-        
-        # Agora, use 'vision_data' para tomar decisões
-        if vision_data is not None:
-            # Alvo encontrado!
-            print(f"Alvo encontrado: dx={vision_data.error_x_px:.1f}, dy={vision_data.error_y_px:.1f}")
+    # 2. Loop Principal de Processamento
+    try:
+        # O loop agora também verifica o evento de parada
+        while not stop_event.is_set():
+            # Etapa 1: Captura um frame da câmera
+            ret, frame = camera.read()
+            if not ret:
+                # print("Aguardando frame da câmera...") # Evita spam
+                time.sleep(0.1)
+                continue
             
-            # --- Aqui entraria a sua lógica de centralização ---
-            # (Usando os erros vision_data.error_x_px e .error_y_px
-            # para calcular a velocidade dos motores do Webots)
+            # Etapa 2: Chama o controller para processar o frame
+            vision_data = controller.calculate_control_data(frame=frame,target_shape_name=TARGET_SHAPE,target_real_width_cm=settings.PLATFORM_WIDTH_CM
+            )
             
+            # Etapa 3: Verifica se o alvo foi encontrado
+            if vision_data is not None:
+                # Alvo ENCONTRADO!
+                data_to_save = {
+                    "found": True,
+                    "dx": vision_data.error_x_px, 
+                    "dy": vision_data.error_y_px,
+                    "distance_m": vision_data.distance_z_m,
+                    "timestamp": time.time()
+                }
+            else:
+                # Alvo NÃO ENCONTRADO!
+                data_to_save = {
+                    "found": False,
+                    "dx": 0.0,
+                    "dy": 0.0,
+                    "distance_m": 0.0,
+                    "timestamp": time.time()
+                }
+
+            # Etapa 4: Escreve os dados no arquivo
+            escrever_dados_alvo(data_to_save)
+
+            # Controla a taxa de processamento (ex: 20 FPS)
+            # time.sleep(0.05) # O read() da câmera já pode ser bloqueante
+            pass # Deixa a câmera ditar o ritmo
+
+    except KeyboardInterrupt:
+        print("\n[VISÃO] Encerrando (recebeu Ctrl+C)...")
+    except Exception as e:
+        print(f"!!! [VISÃO] ERRO INESPERADO NO LOOP: {e} !!!")
+    finally:
+        # 3. Limpeza
+        camera.stop()
+        escrever_dados_alvo({"found": False, "dx": 0.0, "dy": 0.0, "distance_m": 0.0})
+        print("[VISÃO] Script de visão finalizado.")
+
+
+# --- LÓGICA DE MISSÃO (Original de test_detecction.py) ---
+# Esta será a função principal do script
+
+def main_mission():
+    
+    print("[MISSÃO] INICIANDO MISSÃO)")
+    
+    Uno = None
+    stop_vision_event = Event() # Cria o "sinal de parada"
+
+    # --- Inicia a thread de visão ANTES de tudo ---
+    print("[SISTEMA] Iniciando thread de visão em background...")
+    vision_thread = Thread(target=run_vision_thread, args=(stop_vision_event,), daemon=True)
+    vision_thread.start()
+    
+    # Dá um tempo para a câmera RTSP e a visão inicializarem
+    print("[SISTEMA] Aguardando 5s para a visão estabilizar...")
+    time.sleep(5) 
+
+    try:
+        
+        Uno = funcoes_controle5.conectar_uno()
+        print("[MISSÃO] Conexão com o Uno estabelecida.")
+        time.sleep(1) 
+
+        funcoes_controle5.armar_uno(Uno)
+        print("[MISSÃO] Uno armado pronto para decolagem.")
+        time.sleep(1)
+
+        print(f"[MISSÃO] Decolando para {ALTITUDE_DE_BUSCA}m...")
+        funcoes_controle5.decolar_uno(Uno, ALTITUDE_DE_BUSCA)
+        print("[MISSÃO] Altitude de busca atingida.")
+        
+        
+        print(f"[MISSÃO] Iniciando varredura da arena...")
+      
+        sucesso_busca = funcoes_controle5.varredura_arena(Uno, 
+                                                         passo_frente=PASSO_DA_VARREDURA, 
+                                                         velocidade_lateral=VEL_LATERAL, 
+                                                         velocidade_frente=VEL_FRENTE)
+        
+        
+        if sucesso_busca:
+            print("[MISSÃO] Alvo identificado! Iniciando centralização.")
+            time.sleep(1)
+            
+            sucesso_centralizacao = funcoes_controle5.centralizacao(Uno)
+            
+            if sucesso_centralizacao:
+                print("[MISSÃO] Centralização concluída. Iniciando pouso sobre o alvo.")
+            
+                funcoes_controle5.pousar_no_alvo_e_desarmar(Uno)
+                print(f"[MISSÃO] Pouso sobre alvo concluído.")
+                
+                print(f"[MISSÃO] Re-armando o drone para decolagem...")
+                funcoes_controle5.armar_uno(Uno)
+            
+                print(f"[MISSÃO] Subindo de volta para {ALTITUDE_DE_BUSCA}m para o RTL...")
+                funcoes_controle5.decolar_uno(Uno, ALTITUDE_DE_BUSCA)
+                print("[MISSÃO] Altitude de segurança para RTL atingida.")
+                
+                
+            else:
+                print("[MISSÃO] Falha ao centralizar no alvo. Abortando pouso.")
+        
         else:
-            # Alvo não encontrado
-            print("Procurando alvo...")
+            print("[MISSÃO] Alvo não encontrado após varredura completa.")
+
+    except Exception as e:
+        print(f"\n!!! [MISSÃO] ERRO CRÍTICO NA MISSÃO: {e} !!!")
+        print("[MISSÃO] Uma exceção ocorreu. Tentando ativar RTL por segurança...")
+
+    finally:
+        # --- FASE 4: FINALIZAÇÃO (SEMPRE EXECUTA) ---
+        
+        print("\n[MISSÃO] Fase final: Retornando para base.")
+        
+        if Uno:
+            if Uno.armed:
+                print("[MISSÃO] Ativando RTL...")
+                funcoes_controle5.return_to_launch(Uno, altitude_retorno_m=0)
+                print("[MISSÃO] Pouso e desarme na base concluídos.")
+            elif not Uno.armed and Uno.location.global_relative_frame.alt < 0.1:
+                 print("[MISSÃO] Drone já está no chão após pouso no alvo. Missão concluída sem RTL.")
+            else:
+                 try:
+                     print("[MISSÃO] Estado inesperado (desarmado, mas não no chão?). Tentando armar e RTL...")
+                     funcoes_controle5.armar_uno(Uno)
+                     print("[MISSÃO] Ativando RTL de emergência...")
+                     funcoes_controle5.return_to_launch(Uno, altitude_retorno_m=0)
+                     print("[MISSÃO] Pouso e desarme na base concluídos.")
+                 except Exception as rtl_err:
+                     print(f"[MISSÃO] Falha ao tentar RTL de emergência: {rtl_err}")
+        else:
+            print("[MISSÃO] Conexão com o drone nunca foi estabelecida. Finalizando script.")
             
-            # --- Aqui entraria a sua lógica de varredura ---
-            # (Movendo o drone com a API do Webots)
+        print("--- [MISSÃO] MISSÃO FINALIZADA ---")
 
-        # ... (Resto da sua lógica de missão: pousar, etc.) ...
+        # --- Sinaliza para a thread de visão parar ---
+        print("[SISTEMA] Solicitando parada da thread de visão...")
+        stop_vision_event.set() # Envia o sinal de parada
+        vision_thread.join(timeout=3.0) # Espera a thread terminar (por até 3s)
+        print("[SISTEMA] Thread de visão finalizada.")
 
 
+# Ponto de entrada do script: Chama a função main() quando o arquivo é executado
 if __name__ == "__main__":
-    main()
+    
+    # Verificação de segurança da visão (do run_vision.py)
+    # Corrigido para usar o nome correto da constante
+    if settings.DISTANCE_F_PX == 0.0:
+        print("="*50)
+        print(f"!!! ATENÇÃO: settings.DISTANCE_F_PX não foi calibrado (valor: {settings.DISTANCE_F_PX})! !!!")
+        print("A 'distance_z_m' será incorreta ou sempre 0.")
+        print("Por favor, ajuste o 'config/vision_config.py' com o valor calibrado.")
+        print("="*50)
+        time.sleep(3)
+        
+    main_mission() # Inicia a missão
