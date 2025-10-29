@@ -1,4 +1,5 @@
 from threading import Lock
+import json
 
 DATA_FILE_PATH = "alvo_data.json"
 _file_lock = Lock()
