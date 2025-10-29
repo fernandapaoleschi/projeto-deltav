@@ -38,6 +38,7 @@ def armar_uno(Uno, timeout=20):
 
     inicio = time.time()
     while not Uno.armed:
+         Uno.armed = True
         if time.time() - inicio > timeout:
             raise RuntimeError("Falha ao armar o Uno")
         print("Aguardando armar...")
