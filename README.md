@@ -34,7 +34,7 @@ O fluxo da missão consiste em:
 Este projeto requer um ambiente de simulação específico (SITL + Webots) rodando em Linux ou WSL.
 
 **1. Versão do Python**
-Este projeto **requer Python 3.8, 3.9 ou 3.10**. Versões mais recentes (3.11+) podem ter problemas de compatibilidade com as bibliotecas.
+Este projeto **requer Python 3.8, 3.9 ou 3.10**. A API dronekit não possui suporte para versões mais recentes.
 
 **2. Instalação de Software (Sistema)**
 Você precisará instalar as seguintes ferramentas no seu sistema Linux/WSL:
@@ -59,7 +59,7 @@ git clone [https://github.com/fernandapaoleschi/projeto-deltav.git](https://gith
 cd projeto-deltav/missao01_bate_volta
 
 # Instale as dependências do Python
-pip install -r requirements.txt
+pip install <nome-da-dependência>
 ```
 
 ## 🚀 Executando a Simulação
