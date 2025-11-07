@@ -61,7 +61,6 @@ cd projeto-deltav/missao01_bate_volta
 # Instale as dependências do Python
 pip install -r requirements.txt
 ```
----
 
 ## 🚀 Executando a Simulação (Sequência de Lançamento)
 
@@ -103,4 +102,5 @@ source $HOME/venv/venv-ardupilot/bin/activate
 # Execute o script principal da missão
 python main.py
 ```
+
 
