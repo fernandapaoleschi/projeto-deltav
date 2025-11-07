@@ -33,8 +33,8 @@ O fluxo da missão consiste em:
 
 Este projeto requer um ambiente de simulação específico (SITL + Webots) rodando em Linux ou WSL.
 
-**1. Versão do Python (Crítico)**
-Este projeto **requer Python 3.8, 3.9 ou 3.10**. Versões mais recentes (3.11+) podem ter problemas de compatibilidade com as bibliotecas de simulação (Webots, OpenCV ou ArduPilot).
+**1. Versão do Python**
+Este projeto **requer Python 3.8, 3.9 ou 3.10**. Versões mais recentes (3.11+) podem ter problemas de compatibilidade com as bibliotecas.
 
 **2. Instalação de Software (Sistema)**
 Você precisará instalar as seguintes ferramentas no seu sistema Linux/WSL:
@@ -62,7 +62,7 @@ cd projeto-deltav/missao01_bate_volta
 pip install -r requirements.txt
 ```
 
-## 🚀 Executando a Simulação (Sequência de Lançamento)
+## 🚀 Executando a Simulação
 
 Para executar a missão, você precisará iniciar 4 processos em ordem, **em terminais separados**.
 
@@ -102,5 +102,6 @@ source $HOME/venv/venv-ardupilot/bin/activate
 # Execute o script principal da missão
 python main.py
 ```
+
 
 
