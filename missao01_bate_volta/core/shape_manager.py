@@ -1,6 +1,6 @@
 import cv2
 from config import vision_config as settings
-from utils.preprocessing import preprocess_frame  # importa o preprocessing
+
 
 # Importando as classes dos detectores
 from detectors.base_detector import ShapeDetector
