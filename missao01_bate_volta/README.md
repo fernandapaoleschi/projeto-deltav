@@ -17,7 +17,7 @@ O fluxo da missão consiste em:
 4.  **Executar a Entrega:** Sobrevoar a plataforma-alvo e realizar um **pouso de precisão sobre o alvo, seguido de um rearme**.
 5.  **Retornar** à base de decolagem original.
 6.  **Pousar** com segurança dentro dos limites da base circular azul.
----
+
 ## 🧭 Principais Características
 
 * **Multithreading:** A lógica de controle do drone (Máquina de Estados) roda na *thread* principal, enquanto o processamento de visão computacional (OpenCV) roda em uma *thread* paralela, garantindo que a detecção de imagens não bloqueie o controle de voo.
@@ -28,7 +28,7 @@ O fluxo da missão consiste em:
     2.  `mission_control.py` (Lógica de Estados da Missão)
     3.  `vision_manager.py` (Lógica da Thread de Visão)
 * **Configurável:** Parâmetros de voo, missão e câmera são facilmente ajustáveis através de arquivos de configuração.
----
+
 ## 🛠️ Setup do Ambiente (Linux/WSL)
 
 Este projeto requer um ambiente de simulação específico (SITL + Webots) rodando em Linux ou WSL.
@@ -67,7 +67,7 @@ pip install -r requirements.txt
 
 Para executar a missão, você precisará iniciar 4 processos em ordem, **em terminais separados**.
 
----
+
 
 **Terminal 1: Iniciar o `mediamtx`**
 
@@ -103,3 +103,4 @@ source $HOME/venv/venv-ardupilot/bin/activate
 # Execute o script principal da missão
 python main.py
 ```
+
