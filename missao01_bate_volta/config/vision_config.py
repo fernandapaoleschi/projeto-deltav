@@ -1,5 +1,5 @@
 import cv2 as cv 
-import math
+
 # CONFIGURAÇÕES GERAIS DA APLICAÇÃO
 
 # -- CONFIGURAÇÕES DA CÂMERA --

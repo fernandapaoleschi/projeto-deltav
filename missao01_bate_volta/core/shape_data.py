@@ -4,6 +4,16 @@ from typing import Optional
 
 @dataclass
 class ShapeData:
+
+    """
+    Estrutura de dados (dataclass) para armazenar todas as informações
+    relevantes sobre uma única forma geométrica detectada em um frame.
+
+    Esta classe armazena tanto os dados brutos da detecção (nome, contorno, área)
+    quanto os dados calculados posteriormente pelo `CentralizationController`
+    (distância, erros de centralização, etc.).
+
+    """
     
     # Parte que o DETECTOR preenche
     name: str 

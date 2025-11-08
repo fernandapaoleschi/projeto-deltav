@@ -35,7 +35,6 @@ class ShapeManager:
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         blur = cv2.GaussianBlur(gray, (5, 5), 0)
         
-        # Tenta usar os thresholds do seu config
         canny = cv2.Canny(blur, settings.CANNY_THRESHOLD_1, settings.CANNY_THRESHOLD_2)
         
         contours, _ = cv2.findContours(canny, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)

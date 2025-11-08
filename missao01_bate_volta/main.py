@@ -6,6 +6,23 @@ from vision_manager import run_vision_thread
 from mission_control import MissionManager
 
 def main():
+    """
+    Função principal que orquestra o início, execução e término da missão.
+
+    Responsabilidades:
+    1.  Inicia a Thread de Visão: Dispara a função `run_vision_thread` em
+        uma thread separada (daemon) para processar o vídeo em paralelo.
+    2.  Conecta ao Drone: Estabelece a conexão com o veículo (simulador
+        ou real) via Dronekit.
+    3.  Inicia a Missão: Instância e executa a máquina de estados
+        principal (`MissionManager`), que controla o voo do drone.
+    4.  Gerencia Erros: Captura exceções críticas durante a inicialização
+        (ex: falha na conexão) e tenta um RTL de emergência se necessário.
+    5.  Limpeza (Shutdown): Garante que, ao final da missão (seja por
+        sucesso ou falha), a thread de visão seja sinalizada para parar
+        e a conexão com o drone seja fechada adequadamente.
+    """
+    
     print("INICIANDO MISSÃO (Máquina de Estados + Thread de Visão)")
     Uno = None 
     

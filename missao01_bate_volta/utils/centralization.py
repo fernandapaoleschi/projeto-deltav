@@ -5,7 +5,23 @@ from core.shape_data import ShapeData
 from typing import Optional          
 
 class CentralizationController: 
-    
+    """
+         Processa um frame para localizar a forma-alvo principal.
+        
+        Se a forma (`target_shape_name`) for encontrada, calcula:
+        1. Erros de centralização (X, Y) em pixels e metros.
+        2. Distância Z (em metros) até o alvo.
+
+        Args:
+            frame (np.ndarray): O frame da imagem a ser analisado.
+            target_shape_name (str): O nome da forma a ser procurada.
+            target_real_width_cm (float): A largura física real do alvo em cm.
+
+        Returns:
+            Optional[ShapeData]: Um objeto `ShapeData` com todos os dados
+            de controle (erros, distância) ou `None` se o alvo não
+            for encontrado.
+     """
     def __init__(self, shape_manager, camera_width, camera_height):
         self.shape_processor = shape_manager 
         self.camera_center_x = camera_width / 2

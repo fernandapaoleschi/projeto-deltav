@@ -19,7 +19,7 @@ def convert_pixel_error_to_meters(error_x_px: float, error_y_px: float, distance
         # distância for 0 ou a câmera não estiver calibrada.
         return 0.0, 0.0
 
-    # Esta é a fórmula da câmera pinhole (regra de três)
+   
     # Erro_Metros = (Erro_Pixels * Distancia_Metros) / Distancia_Focal_Pixels
     error_x_m = (error_x_px * distance_z_m) / focal_px
     error_y_m = (error_y_px * distance_z_m) / focal_px

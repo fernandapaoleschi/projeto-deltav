@@ -12,6 +12,30 @@ from config import vision_config as settings
 from config import mission_config as m_settings
 
 def run_vision_thread(stop_event: Event):
+
+    """
+    Executa o loop principal de processamento de visão em uma thread separada.
+
+    Inicializa a câmera e os controladores de visão, e então entra
+    em um loop contínuo (enquanto `stop_event` não for acionado) para:
+
+    1.  Capturar o frame: Lê o quadro mais recente da câmera.
+    2.  Processar a imagem: Utiliza o `CentralizationController` para analisar
+        o frame.
+    3.  Detectar a figura: Tenta encontrar a forma alvo (`TARGET_SHAPE`)
+        definida nas configurações da missão.
+    4.  Gerar saída (JSON): Escreve os resultados em um arquivo 
+        indicando se o alvo foi (encontrado e suas características
+        (erro `dx`, `dy`, `distance_m`).
+
+    A thread também exibe o vídeo processado em uma janela do OpenCV e
+    pode ser interrompida pressionando 'q'.
+
+    Args:
+        stop_event (Event): Objeto de threading.Event() usado para sinalizar
+                            a esta thread que ela deve parar.
+    """
+    
     print("[VISÃO] Iniciando script de VISÃO...")
     camera = None # Define fora do try para o finally
     try:
@@ -30,7 +54,7 @@ def run_vision_thread(stop_event: Event):
     # Loop Principal de Processamento
     try:
         while not stop_event.is_set():
-            # Captura um frame da câmera
+            
             ret, frame = camera.read()
 
             if not ret:
